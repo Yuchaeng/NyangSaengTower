@@ -26,7 +26,7 @@ public class Move : MonoBehaviour
     public float rightRotate;
     public float leftRotate;
 
-    
+    Vector3 lookDirection;
 
     private void Start()
     {
@@ -52,30 +52,44 @@ public class Move : MonoBehaviour
 
         if (_isMovable)
         {
-            if (Input.GetKey(KeyCode.RightArrow))
-            {
-                direction = 1; //오른쪽
-                _inputVec.x = Input.GetAxisRaw("Horizontal");
-                animator.SetBool("IsWalking", true);
-            }
-            else if (direction == 1 && !Input.GetKey(KeyCode.RightArrow))
-            {
-                _inputVec.x = 0;
-                animator.SetBool("IsWalking", false);
-            }
+            _inputVec.x = Input.GetAxisRaw("Horizontal");
+            _inputVec.z = Input.GetAxisRaw("Vertical");
 
-            if (Input.GetKey(KeyCode.LeftArrow))
-            {
-                direction = -1; //왼쪽
-                _inputVec.x = Input.GetAxisRaw("Horizontal");
-                animator.SetBool("IsWalking", true);
+            animator.SetBool("IsWalking", _inputVec.x != 0 || _inputVec.z != 0);
 
-            }
-            else if (direction == -1 && !Input.GetKey(KeyCode.LeftArrow))
-            {
-                _inputVec.x = 0;
-                animator.SetBool("IsWalking", false);
-            }
+        }
+
+      
+
+
+        /*if (_isMovable)
+        {
+           
+
+            //if (Input.GetKey(KeyCode.RightArrow))
+            //{
+            //    direction = 1; //오른쪽
+            //    _inputVec.x = Input.GetAxisRaw("Horizontal");
+            //    animator.SetBool("IsWalking", true);
+            //}
+            //else if (direction == 1 && !Input.GetKey(KeyCode.RightArrow))
+            //{
+            //    _inputVec.x = 0;
+            //    animator.SetBool("IsWalking", false);
+            //}
+
+            //if (Input.GetKey(KeyCode.LeftArrow))
+            //{
+            //    direction = -1; //왼쪽
+            //    _inputVec.x = Input.GetAxisRaw("Horizontal");
+            //    animator.SetBool("IsWalking", true);
+
+            //}
+            //else if (direction == -1 && !Input.GetKey(KeyCode.LeftArrow))
+            //{
+            //    _inputVec.x = 0;
+            //    animator.SetBool("IsWalking", false);
+            //}
         }
         else
         {
@@ -101,7 +115,7 @@ public class Move : MonoBehaviour
             {
                 transform.rotation = Quaternion.Euler(0, leftRotate, 0);
             }
-        }
+        }*/
         
 
 
@@ -170,36 +184,25 @@ public class Move : MonoBehaviour
         //if (limitPos.y > 1f)
         //    _inputVec.y = 1f;
 
-        transform.position += _inputVec * _moveSpeed * Time.fixedDeltaTime;
+        //_myRigid.MovePosition(_inputVec.normalized * _moveSpeed * Time.fixedDeltaTime);
+        //_myRigid.AddForce(_inputVec.normalized * _moveSpeed * Time.fixedDeltaTime, ForceMode.Force);
+        //_myRigid.velocity = _inputVec.normalized * _moveSpeed * Time.fixedDeltaTime;
+        transform.position += _inputVec.normalized * _moveSpeed * Time.fixedDeltaTime;
 
-        //Debug.DrawRay(transform.position, Vector3.down * lineSize, Color.blue);
+        if ((_inputVec.x != 0 || _inputVec.z != 0) && _isDirectionChangeable)
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(_inputVec), 20f * Time.fixedDeltaTime);
 
-       
+
+            transform.LookAt(transform.position + _inputVec);
 
 
-        //if (!Physics.BoxCast(transform.position, new Vector3(2f, 2f), Vector3.down, transform.rotation, lineSize, LayerMask.GetMask("Stair"))
-        //    )
-        //{
-        //    Debug.Log("계단 없음");
+            //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(transform.position + _inputVec), Time.deltaTime);
 
-        //    //_isFalling = true;
-            
-        //}
-        
-        //else
-        //{
-        //    Debug.Log("계단 있음");
-        //    _isFalling = false;
-        //}
 
-       
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawWireCube(transform.position + Vector3.down * hit.distance, new Vector3(2f, 2f));
 
     }
+
+ 
 
     private void Jump()
     {
